@@ -1,0 +1,140 @@
+﻿@{
+    ViewData["Title"] = "Stock Out";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Stock Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" />
+    
+</head>
+<body style="background: #faf5ff;">
+
+    <div class="dashboard-container">
+        <!-- Header - SAME AS DASHBOARD with Purple Gradient -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <i class="fas fa-arrow-up"></i>
+                    <h1>Stock Out</h1>
+                </div>
+                <div class="header-stats">
+                    <div class="header-stat-card">
+                        <div class="header-stat-label">Today's Stock Out</div>
+                        <div class="header-stat-value" id="todayStockOut">0</div>
+                    </div>
+                    <div class="header-stat-card">
+                        <div class="header-stat-label">Total Quantity Out</div>
+                        <div class="header-stat-value" id="totalQuantityOut">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Out Grid -->
+        <div class="products-grid">
+            <!-- Left Column: Stock Out Form -->
+            <div class="form-card">
+                <h3><i class="fas fa-minus-circle"></i> Remove Stock</h3>
+                <form id="stockOutForm">
+                    @Html.AntiForgeryToken()
+                
+                    <div class="form-group">
+                        <label><i class="fas fa-box"></i> Product <span class="required">*</span></label>
+                        <select id="productId" class="form-control" required>
+                            <option value="">Select Product</option>
+                        </select>
+                        <span class="error" id="productError"></span>
+                    </div>
+                
+                    <div class="form-group">
+                        <label><i class="fas fa-database"></i> Current Stock</label>
+                        <input type="text" id="currentStock" class="form-control" readonly disabled style="background: #f3e8ff; color: #4c1d95; font-weight: 500;" />
+                    </div>
+                
+                    <div class="form-group">
+                        <label><i class="fas fa-cubes"></i> Quantity to Remove <span class="required">*</span></label>
+                        <input type="number" id="quantity" class="form-control" placeholder="Enter quantity" min="1" />
+                        <span class="error" id="quantityError"></span>
+                    </div>
+                
+                    <div class="form-group">
+                        <label><i class="fas fa-info-circle"></i> Reason <span class="required">*</span></label>
+                        <select id="reason" class="form-control">
+                            <option value="">Select Reason</option>
+                            <option value="Sale">Sale</option>
+                            <option value="Damaged">Damaged</option>
+                            <option value="Expired">Expired</option>
+                            <option value="Return to Supplier">Return to Supplier</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span class="error" id="reasonError"></span>
+                    </div>
+                
+                    <div class="form-group">
+                        <label><i class="fas fa-align-left"></i> Remarks</label>
+                        <textarea id="remarks" class="form-control" rows="3" placeholder="Optional remarks..."></textarea>
+                    </div>
+                
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save"></i> Remove Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Column: Stock Out History -->
+            <div class="table-card">
+                <h3><i class="fas fa-history"></i> Stock Out History</h3>
+            
+                <div class="search-section">
+                    <div class="search-bar-wrapper">
+                        <div class="search-input-group">
+                            <input type="text" id="searchInput" placeholder="Search by product or reason..." class="search-input" />
+                            <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                            <button class="btn btn-secondary" id="resetBtn"><i class="fas fa-redo"></i> Reset</button>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="table-container">
+                    <tr>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Product Name</th>
+                                <th>Quantity</th>
+                                <th>Reason</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockOutTableBody">
+                            <tr><td colspan="5" style="text-align:center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+            
+                    <div class="table-footer">
+                        <div class="showing-info">
+                            Showing <span id="showingCount">0</span> records
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="toast" class="toast"></div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="~/assests/Ajax/js/Stock/StockOut.js"></script>
+
+    </body>
+</html>

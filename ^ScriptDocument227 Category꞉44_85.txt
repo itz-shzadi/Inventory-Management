@@ -1,0 +1,12 @@
+// javascript
+// ensure this script is loaded on the page (in _Layout.cshtml or the view)
+window.showAddCategoryModal = function () {
+    // ...modal open logic...
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.querySelector('#addCategoryBtn');
+    btn.addEventListener('click', () => {
+        // open modal logic
+    });
+});

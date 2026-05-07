@@ -1,0 +1,82 @@
+﻿@{
+    ViewData["Title"] = "Reports";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Stock Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+   
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <i class="fas fa-chart-bar"></i>
+                    <h1>Reports Dashboard</h1>
+                </div>
+                <div class="header-stats">
+                    <div class="header-stat-card"><div class="header-stat-label">Total Products</div><div class="header-stat-value" id="totalProducts">0</div></div>
+                    <div class="header-stat-card"><div class="header-stat-label">Low Stock</div><div class="header-stat-value" id="lowStockCount">0</div></div>
+                    <div class="header-stat-card"><div class="header-stat-label">Out of Stock</div><div class="header-stat-value" id="outOfStockCount">0</div></div>
+                    <div class="header-stat-card"><div class="header-stat-label">Total Stock Value</div><div class="header-stat-value" id="totalValue">$0</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="reports-grid">
+            <div class="report-card"><h3><i class="fas fa-chart-pie"></i> Stock Distribution</h3><canvas id="stockChart" height="200"></canvas></div>
+            <div class="report-card"><h3><i class="fas fa-chart-line"></i> Stock Movement</h3><canvas id="movementChart" height="200"></canvas></div>
+        </div>
+
+        <div class="table-card">
+            <h3><i class="fas fa-history"></i> Stock Movement History</h3>
+            <div class="search-section">
+                <div class="search-bar-wrapper">
+                    <div class="search-input-group">
+                        <input type="date" id="fromDate" class="form-control" />
+                        <input type="date" id="toDate" class="form-control" />
+                        <button class="btn btn-primary" id="filterDateBtn"><i class="fas fa-filter"></i> Filter</button>
+                        <button class="btn btn-secondary" id="resetBtn"><i class="fas fa-redo"></i> Reset</button>
+                    </div>
+                    <div class="filter-group">
+                        <select id="typeFilter" class="form-control">
+                            <option value="">All Types</option>
+                            <option value="Stock In">Stock In</option>
+                            <option value="Stock Out">Stock Out</option>
+                        </select>
+                        <button class="btn btn-outline" id="applyTypeFilter"><i class="fas fa-filter"></i> Apply</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Date</th><th>Type</th><th>Product</th><th>Quantity</th><th>Reference</th></tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr><td colspan="5" style="text-align:center;">Loading...<\/td><\/tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-footer">
+                <div class="showing-info">Showing <span id="showingCount">0</span> records</div>
+                <button class="btn btn-success" id="exportBtn"><i class="fas fa-download"></i> Export to CSV</button>
+            </div>
+        </div>
+    </div>
+    <div id="toast" class="toast"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="~/assests/Ajax/js/Stock/Reports.js"></script>
+</body>
+</html>

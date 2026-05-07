@@ -1,0 +1,181 @@
+﻿@{
+    ViewData["Title"] = "Stock In";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Stock Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" />
+    
+</head>
+<body style="background: #faf5ff;">
+
+    <div class="dashboard-container">
+        <!-- Header - SAME AS DASHBOARD with Purple Gradient -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <i class="fas fa-arrow-down"></i>
+                    <h1>Stock In</h1>
+                </div>
+                <div class="header-stats">
+                    <div class="header-stat-card">
+                        <div class="header-stat-label">Today's Stock In</div>
+                        <div class="header-stat-value" id="todayStockIn">0</div>
+                    </div>
+                    <div class="header-stat-card">
+                        <div class="header-stat-label">Total Quantity</div>
+                        <div class="header-stat-value" id="totalQuantityHeader">0</div>
+                    </div>
+                    <div class="header-stat-card">
+                        <div class="header-stat-label">Total Value</div>
+                        <div class="header-stat-value" id="totalValueHeader">$0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock In Grid -->
+        <div class="products-grid">
+            <!-- Left Column: Stock In Form -->
+            <div class="form-card">
+                <h3><i class="fas fa-plus-circle"></i> Add Stock In</h3>
+                <form id="stockInForm" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Date <span class="required">*</span></label>
+                        <input type="date" id="stockDate" class="form-control" />
+                        <span class="error" id="dateError"></span>
+                    </div>
+                
+                    <div class="form-group">
+                        <label><i class="fas fa-box"></i> Product <span class="required">*</span></label>
+                        <select id="productId" class="form-control" required>
+                            <option value="">Select Product</option>
+                        </select>
+                        <span class="error" id="productError"></span>
+                    </div>
+                
+                    <div class="form-group">
+                        <label><i class="fas fa-truck"></i> Supplier <span class="required">*</span></label>
+                        <select id="supplierId" class="form-control" required>
+                            <option value="">Select Supplier</option>
+                        </select>
+                        <span class="error" id="supplierError"></span>
+                    </div>
+                
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-cubes"></i> Quantity <span class="required">*</span></label>
+                            <input type="number" id="quantity" placeholder="Enter quantity" min="1" class="form-control" />
+                            <span class="error" id="quantityError"></span>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label><i class="fas fa-dollar-sign"></i> Unit Price</label>
+                            <input type="number" id="unitPrice" step="0.01" placeholder="0.00" min="0" class="form-control" />
+                            <span class="error" id="unitPriceError"></span>
+                        </div>
+                    </div>
+                
+                    <div class="form-group">
+                        <label><i class="fas fa-file-upload"></i> Upload Document (Invoice/Receipt)</label>
+                        <div class="file-upload-container" id="fileUploadContainer">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click or drag & drop to upload document</p>
+                            <p style="font-size: 12px; color: #64748b;">Supported formats: PDF, JPG, PNG, DOC (Max 5MB)</p>
+                            <input type="file" id="documentFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display: none;" />
+                        </div>
+                        <div id="fileInfo"></div>
+                        <span class="error" id="documentError"></span>
+                    </div>
+                
+                    <div class="form-group">
+                        <label><i class="fas fa-align-left"></i> Remarks</label>
+                        <textarea id="remarks" rows="3" placeholder="Optional remarks..." class="form-control"></textarea>
+                    </div>
+                
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save"></i> Add Stock
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="resetFormBtn">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Column: Stock In History -->
+            <div class="table-card">
+                <h3><i class="fas fa-history"></i> Stock In History</h3>
+            
+                <div class="search-section">
+                    <div class="search-bar-wrapper">
+                        <div class="search-input-group">
+                            <input type="text" id="searchInput" placeholder="Search by product or supplier..." class="search-input" />
+                            <input type="date" id="filterDate" class="form-control" style="width: auto;" />
+                            <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                            <button class="btn btn-secondary" id="resetBtn"><i class="fas fa-redo"></i> Reset</button>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Product Name</th>
+                                <th>Supplier</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                                <th>Document</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockInTableBody">
+                            <tr><td colspan="8" style="text-align:center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+            
+                    <div class="table-footer">
+                        <div class="showing-info">
+                            Showing <span id="showingCount">0</span> records
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Preview Modal -->
+        <div id="documentModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-file-pdf"></i> Document Preview</h3>
+                    <span class="close" id="closeDocModal">&times;</span>
+                </div>
+                <div class="modal-body" style="padding: 20px; min-height: 400px;">
+                    <iframe id="docFrame" style="width: 100%; height: 500px; border: none;"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast"></div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="~/assests/Ajax/js/Stock/StockIn.js"></script>
+
+    </body>
+</html>

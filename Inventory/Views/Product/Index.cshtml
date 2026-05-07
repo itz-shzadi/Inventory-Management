@@ -1,0 +1,202 @@
+﻿@model Inventory.Models.Product
+@{
+    ViewData["Title"] = "Products";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Product Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body style="background: #faf5ff;">
+
+<div class="dashboard-container">
+    <!-- Header - SAME AS DASHBOARD with Purple Gradient -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-title">
+                <i class="fas fa-box"></i>
+                <h1>Product Management</h1>
+            </div>
+            <div class="header-stats">
+                <div class="header-stat-card">
+                    <div class="header-stat-label">Total Products</div>
+                    <div class="header-stat-value" id="totalProducts">0</div>
+                </div>
+                <div class="header-stat-card">
+                    <div class="header-stat-label">Low Stock Items</div>
+                    <div class="header-stat-value" id="lowStockCount">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product & Products List Grid -->
+    <div class="products-grid">
+        <!-- Left Column - Add New Product -->
+        <div class="form-card">
+            <h3><i class="fas fa-plus-circle"></i> Add New Product</h3>
+            <form id="productForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="productId" value="0" />
+
+                <div class="form-group">
+                    <label>Product Name <span class="required">*</span></label>
+                    <input type="text" id="productName" placeholder="Enter product name" class="form-control" />
+                    <span class="error" id="nameError"></span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category <span class="required">*</span></label>
+                        <select id="categoryId" class="form-control">
+                            <option value="">Select Category</option>
+                        </select>
+                        <span class="error" id="categoryError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Supplier <span class="required">*</span></label>
+                        <select id="supplierId" class="form-control">
+                            <option value="">Select Supplier</option>
+                        </select>
+                        <span class="error" id="supplierError"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Purchase Price <span class="required">*</span></label>
+                        <input type="number" id="purchasePrice" step="0.01" placeholder="0.00" class="form-control" />
+                        <span class="error" id="purchasePriceError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sale Price <span class="required">*</span></label>
+                        <input type="number" id="salePrice" step="0.01" placeholder="0.00" class="form-control" />
+                        <span class="error" id="salePriceError"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Quantity <span class="required">*</span></label>
+                        <input type="number" id="quantity" min="0" step="1" value="0" class="form-control" />
+                        <span class="error" id="quantityError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Unit</label>
+                        <input type="text" id="unit" placeholder="e.g., Pcs, Kg" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" rows="3" placeholder="Product description..." class="form-control"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-save"></i> Save Product
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="cancelBtn" style="display:none;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Column - Products List -->
+        <div class="table-card">
+            <h3><i class="fas fa-list"></i> Products List</h3>
+
+            <div class="search-section">
+                <div class="search-bar-wrapper">
+                    <div class="search-input-group">
+                        <input type="text" id="searchInput" placeholder="Search products by name, category, supplier..." class="search-input" />
+                        <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                        <button class="btn btn-secondary" id="resetSearchBtn"><i class="fas fa-redo"></i> Reset</button>
+                        <button class="btn btn-success" id="stockInBtn"><i class="fas fa-plus-circle"></i> Stock In</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Supplier</th>
+                            <th>Sale Price</th>
+                            <th>Quantity</th>
+                            <th>Unit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <tr><td colspan="7" style="text-align:center;">Loading products...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <div class="showing-info">
+                    Showing <span id="showingCount">0</span> products
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Modal -->
+<div id="stockModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> Add Stock</h3>
+            <button class="close" id="closeModalBtn">&times;</button>
+        </div>
+        <form id="stockForm">
+            <div class="form-group">
+                <label>Product <span class="required">*</span></label>
+                <select id="stockProductSelect" class="form-control" required>
+                    <option value="">Select Product</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Supplier <span class="required">*</span></label>
+                <select id="stockSupplierId" class="form-control" required>
+                    <option value="">Select Supplier</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Quantity <span class="required">*</span></label>
+                <input type="number" id="stockQuantity" placeholder="Enter quantity" min="1" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label>Remarks</label>
+                <textarea id="stockRemarks" rows="2" placeholder="Optional remarks..." class="form-control"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Add Stock</button>
+                <button type="button" class="btn btn-secondary" id="cancelStockBtn"><i class="fas fa-times"></i> Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/assests/Ajax/js/Product/Product.js"></script>
+
+</body>
+</html>

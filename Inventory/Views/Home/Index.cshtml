@@ -1,0 +1,220 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Home - InventoryMS";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InventoryMS | Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        /* Landing page specific styles */
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+        }
+        
+        .landing-navbar {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .landing-logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .landing-logo i { color: #764ba2; margin-right: 10px; }
+        
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover { color: #667eea; }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+            color: white;
+        }
+        
+        .hero-content h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .hero-content p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .hero-btn {
+            background: white;
+            color: #667eea;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+        
+        .hero-btn:hover { transform: translateY(-3px); }
+        
+        .hero-image i { font-size: 300px; opacity: 0.8; }
+        
+        .features {
+            background: white;
+            padding: 60px 50px;
+            text-align: center;
+        }
+        
+        .features h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 40px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-card {
+            padding: 30px;
+            border-radius: 16px;
+            background: #f8fafc;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        .feature-card i { font-size: 48px; color: #667eea; margin-bottom: 15px; }
+        
+        .feature-card h3 { font-size: 20px; margin-bottom: 10px; color: #333; }
+        
+        .feature-card p { color: #666; font-size: 14px; }
+        
+        .landing-footer {
+            background: #1e1b4b;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        @@media (max-width: 768px) {
+            .hero { flex-direction: column; text-align: center; padding: 40px 20px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .nav-links a { margin-left: 15px; font-size: 14px; }
+            .hero-image i { font-size: 150px; }
+            .hero-content h1 { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-navbar">
+        <div class="landing-logo">
+            <i class="fas fa-boxes"></i> InventoryMS
+        </div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Features</a>
+            <a href="#">About</a>
+            <a href="/Account/Login" class="btn-login">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+    </div>
+    
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Inventory Management System</h1>
+            <p>Manage your products, track stock, and streamline your business operations<br> with our powerful inventory management solution.</p>
+            <a href="/Account/Login" class="hero-btn">
+                <i class="fas fa-rocket"></i> Get Started
+            </a>
+        </div>
+        <div class="hero-image">
+            <i class="fas fa-chart-line"></i>
+        </div>
+    </div>
+    
+    <div class="features">
+        <h2>Key Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-cubes"></i>
+                <h3>Product Management</h3>
+                <p>Add, edit, and manage all your products in one place</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-exchange-alt"></i>
+                <h3>Stock In/Out</h3>
+                <p>Track stock movements and maintain inventory levels</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Analytics & Reports</h3>
+                <p>Generate detailed reports and gain business insights</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-users"></i>
+                <h3>Role Management</h3>
+                <p>Admin, Manager, and Staff roles with permissions</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="landing-footer">
+        <p>&copy; 2025 InventoryMS - All Rights Reserved</p>
+    </div>
+    
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Check if user is already logged in
+        fetch('/Account/CheckSession')
+            .then(res => res.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    if (data.role === 'admin') window.location.href = '/Account/AdminDashboard';
+                    else if (data.role === 'manager') window.location.href = '/Account/ManagerDashboard';
+                    else if (data.role === 'staff') window.location.href = '/Account/StaffDashboard';
+                }
+            })
+            .catch(() => {});
+    </script>
+</body>
+</html>

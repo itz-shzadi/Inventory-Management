@@ -1,0 +1,141 @@
+﻿@{
+    ViewData["Title"] = "Low Stock Report";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Stock Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" />
+
+</head>
+<body style="background: #faf5ff;">
+
+<div class="dashboard-container">
+    <!-- Header - SAME AS DASHBOARD with Purple Gradient -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h1>Low Stock Report</h1>
+            </div>
+            <div class="header-stats">
+                <div class="header-stat-card">
+                    <div class="header-stat-label">Low Stock Items</div>
+                    <div class="header-stat-value" id="lowStockCount">0</div>
+                </div>
+                <div class="header-stat-card">
+                    <div class="header-stat-label">Out of Stock</div>
+                    <div class="header-stat-value" id="outOfStockCount">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Need Attention Card -->
+    <div class="table-card">
+        <h3><i class="fas fa-chart-line"></i> Products Need Attention</h3>
+
+        <div class="search-section">
+            <div class="search-bar-wrapper">
+                <div class="search-input-group">
+                    <input type="text" id="searchInput" placeholder="Search by product name..." class="search-input" />
+                    <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                    <button class="btn btn-secondary" id="resetBtn"><i class="fas fa-redo"></i> Reset</button>
+                </div>
+                <div class="filter-group">
+                    <select id="thresholdFilter" class="form-control" style="width: auto; min-width: 140px;">
+                        <option value="5">Threshold: 5</option>
+                        <option value="10" selected>Threshold: 10</option>
+                        <option value="15">Threshold: 15</option>
+                        <option value="20">Threshold: 20</option>
+                        <option value="25">Threshold: 25</option>
+                        <option value="50">Threshold: 50</option>
+                    </select>
+                    <button class="btn btn-outline" id="applyThreshold"><i class="fas fa-sliders-h"></i> Apply</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Unit</th>
+                        <th>Threshold</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="lowStockTableBody">
+                    <tr><td colspan="7" style="text-align:center;">Loading...<\/td><\/tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-footer">
+            <div class="showing-info">
+                Showing <span id="showingCount">0</span> low stock items
+            </div>
+            <button class="btn btn-success" id="stockInAllBtn"><i class="fas fa-plus-circle"></i> Stock In All</button>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Modal -->
+<div id="stockModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> Add Stock</h3>
+            <button class="close" id="closeModalBtn">&times;</button>
+        </div>
+        <form id="stockForm">
+            @Html.AntiForgeryToken()
+            
+            <div class="form-group">
+                <label>Product <span class="required">*</span></label>
+                <select id="stockProductId" class="form-control" required>
+                    <option value="">Select Product</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Supplier <span class="required">*</span></label>
+                <select id="stockSupplierId" class="form-control" required>
+                    <option value="">Select Supplier</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Quantity to Add <span class="required">*</span></label>
+                <input type="number" id="stockQuantity" class="form-control" placeholder="Enter quantity" min="1" required />
+            </div>
+            
+            <div class="form-group">
+                <label>Remarks</label>
+                <textarea id="stockRemarks" class="form-control" rows="2" placeholder="Optional remarks..."></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Add Stock</button>
+                <button type="button" class="btn btn-secondary" id="cancelStockBtn"><i class="fas fa-times"></i> Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/assests/Ajax/js/Stock/LowStockReport.js"></script>
+
+</body>
+</html>

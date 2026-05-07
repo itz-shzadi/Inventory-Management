@@ -1,0 +1,133 @@
+﻿@model Inventory.Models.Supplier
+@{
+    ViewData["Title"] = "Suppliers";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Supplier Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+
+<body style="background: #faf5ff;">
+
+    <div class="dashboard-container">
+        <!-- Header - SAME AS DASHBOARD with Purple Gradient -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <i class="fas fa-truck"></i>
+                    <h1>Supplier Management</h1>
+                </div>
+                <div class="header-stats">
+                    <div class="header-stat-card">
+                        <div class="header-stat-label">Total Suppliers</div>
+                        <div class="header-stat-value" id="totalSuppliers">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Supplier & Suppliers List Grid -->
+        <div class="products-grid">
+            <!-- Left Column: Supplier Form -->
+            <div class="form-card">
+                <h3><i class="fas fa-plus-circle"></i> <span id="formTitle">Add New Supplier</span></h3>
+                <form id="supplierForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="supplierId" name="SupplierId" value="0" />
+
+                    <div class="form-group">
+                        <label><i class="fas fa-building"></i> Supplier Name <span class="required">*</span></label>
+                        <input type="text" id="supplierName" name="SupplierName" placeholder="e.g., ABC Electronics, XYZ Traders" class="form-control" />
+                        <span class="error" id="nameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> Contact Number <span class="required">*</span></label>
+                        <input type="text" id="contactNo" name="ContactNo" placeholder="e.g., 03001234567" maxlength="15" class="form-control"
+                               onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                        <small style="color: #64748b; font-size: 11px;">Only numbers allowed (10-15 digits)</small>
+                        <span class="error" id="contactError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="email" name="Email" placeholder="supplier@example.com" class="form-control" />
+                        <span class="error" id="emailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-location-dot"></i> Address</label>
+                        <textarea id="address" name="Address" placeholder="Complete address..." rows="3" class="form-control"></textarea>
+                        <span class="error" id="addressError"></span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save"></i> Save Supplier
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="cancelBtn" style="display:none;">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Column: Suppliers List -->
+            <div class="table-card">
+                <h3><i class="fas fa-list"></i> Suppliers List</h3>
+
+                <!-- Search Section -->
+                <div class="search-section">
+                    <div class="search-bar-wrapper">
+                        <div class="search-input-group">
+                            <input type="text" id="searchInput" placeholder="Search by name, contact or email..." class="search-input" />
+                            <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                            <button class="btn btn-secondary" id="resetSearchBtn"><i class="fas fa-redo"></i> Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suppliers Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Supplier Name</th>
+                                <th>Contact No</th>
+                                <th>Email</th>
+                                <th>Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supplierTableBody">
+                            <tr><td colspan="5" style="text-align:center;">Loading suppliers...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-footer">
+                        <div class="showing-info">
+                            <i class="fas fa-database"></i> Showing: <span id="displayCount">0</span> suppliers
+                        </div>
+                        <button id="deleteAllBtn" class="delete-all-btn"><i class="fas fa-trash-alt"></i> Delete All</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="toast" class="toast"></div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+        <script src="~/assests/Ajax/js/Supplier/Supplier.js"></script>
+    </body>
+</html>

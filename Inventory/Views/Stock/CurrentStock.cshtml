@@ -1,0 +1,101 @@
+﻿@{
+    ViewData["Title"] = "Current Stock";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Stock Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" />
+    <style>
+        .stock-low { background-color: #fff3cd !important; }
+        .stock-out { background-color: #f8d7da !important; }
+        .stock-good { background-color: #d4edda !important; }
+    </style>
+</head>
+<body style="background: #faf5ff;">
+
+<div class="dashboard-container">
+    <!-- Header - SAME AS DASHBOARD with Purple Gradient -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-title">
+                <i class="fas fa-boxes"></i>
+                <h1>Current Stock</h1>
+            </div>
+            <div class="header-stats">
+                <div class="header-stat-card">
+                    <div class="header-stat-label">Total Products</div>
+                    <div class="header-stat-value" id="totalProducts">0</div>
+                </div>
+                <div class="header-stat-card">
+                    <div class="header-stat-label">Total Value</div>
+                    <div class="header-stat-value" id="totalValue">$0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Summary Card -->
+    <div class="table-card">
+        <h3><i class="fas fa-chart-line"></i> Stock Summary</h3>
+
+        <div class="search-section">
+            <div class="search-bar-wrapper">
+                <div class="search-input-group">
+                    <input type="text" id="searchInput" placeholder="Search by product name, category, supplier..." class="search-input" />
+                    <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                    <button class="btn btn-secondary" id="resetBtn"><i class="fas fa-redo"></i> Reset</button>
+                </div>
+                <div class="filter-group">
+                    <select id="categoryFilter" class="form-control" style="width: auto; min-width: 140px;">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="supplierFilter" class="form-control" style="width: auto; min-width: 140px;">
+                        <option value="">All Suppliers</option>
+                    </select>
+                    <button class="btn btn-outline" id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Supplier</th>
+                        <th>Current Stock</th>
+                        <th>Unit</th>
+                        <th>Purchase Price</th>
+                        <th>Sale Price</th>
+                        <th>Stock Value</th>
+                    </tr>
+                </thead>
+                <tbody id="stockTableBody">
+                    <tr><td colspan="8" style="text-align:center;">Loading......</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-footer">
+            <div class="showing-info">
+                Showing <span id="showingCount">0</span> products
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/assests/Ajax/js/Stock/CurrentStock.js"></script>
+</body>
+</html>

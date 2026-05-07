@@ -1,0 +1,351 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Login";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InventoryMS | Login</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-container { width: 100%; max-width: 450px; }
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+        @@keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .logo i { font-size: 48px; color: #f0abfc; }
+        .logo span {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #f3e8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .login-header p { font-size: 14px; opacity: 0.9; }
+        .login-body { padding: 35px 30px; }
+        .form-group { margin-bottom: 24px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #334155;
+            font-size: 14px;
+        }
+        .form-group label i { margin-right: 8px; color: #8b5cf6; }
+        .input-group { position: relative; display: flex; align-items: center; }
+        .input-group i {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 16px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 15px 12px 42px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139,92,246,0.1);
+        }
+        .role-selector { display: flex; gap: 12px; margin-top: 8px; }
+        .role-option { flex: 1; cursor: pointer; }
+        .role-option input { display: none; }
+        .role-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .role-option input:checked + .role-card {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, #f3e8ff, #faf5ff);
+        }
+        .role-card i { font-size: 24px; display: block; margin-bottom: 8px; color: #8b5cf6; }
+        .role-card span { font-size: 13px; font-weight: 600; color: #334155; }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102,126,234,0.3); }
+        .btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
+        .demo-credentials { margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+        .demo-title { font-size: 12px; color: #64748b; text-align: center; margin-bottom: 12px; }
+        .demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .demo-item {
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .demo-item:hover { background: #f3e8ff; transform: scale(1.02); }
+        .demo-role { font-size: 11px; font-weight: 600; color: #8b5cf6; }
+        .demo-creds { font-size: 10px; color: #64748b; margin-top: 4px; }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 9999;
+            display: none;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.error { background: #dc3545; }
+        .toast.success { background: #28a745; }
+        @@keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid white;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @@media (max-width: 480px) {
+            .login-body { padding: 25px 20px; }
+            .demo-grid { grid-template-columns: 1fr; gap: 8px; }
+            .role-selector { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">
+                    <i class="fas fa-boxes"></i>
+                    <span>InventoryMS</span>
+                </div>
+                <p>Inventory Management System</p>
+            </div>
+            <div class="login-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email Address</label>
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="email" id="email" class="form-control" placeholder="Enter your email" required autocomplete="off">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <div class="input-group">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="password" class="form-control" placeholder="Enter password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-user-tag"></i> Select Role</label>
+                        <div class="role-selector">
+                            <label class="role-option">
+                                <input type="radio" name="role" value="admin" checked>
+                                <div class="role-card">
+                                    <i class="fas fa-crown"></i>
+                                    <span>Admin</span>
+                                </div>
+                            </label>
+                            <label class="role-option">
+                                <input type="radio" name="role" value="manager">
+                                <div class="role-card">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Manager</span>
+                                </div>
+                            </label>
+                            <label class="role-option">
+                                <input type="radio" name="role" value="staff">
+                                <div class="role-card">
+                                    <i class="fas fa-user-check"></i>
+                                    <span>Staff</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-login" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+                
+                <div class="demo-credentials">
+                    <div class="demo-title">
+                        <i class="fas fa-info-circle"></i> Demo Credentials (Click to auto-fill)
+                    </div>
+                    <div class="demo-grid">
+                        <div class="demo-item" onclick="fillCredentials('admin@inventory.com', 'admin123', 'admin')">
+                            <div class="demo-role"><i class="fas fa-crown"></i> Admin</div>
+                            <div class="demo-creds">admin@inventory.com</div>
+                            <div class="demo-creds">•••••••</div>
+                        </div>
+                        <div class="demo-item" onclick="fillCredentials('manager@inventory.com', 'manager123', 'manager')">
+                            <div class="demo-role"><i class="fas fa-chart-line"></i> Manager</div>
+                            <div class="demo-creds">manager@inventory.com</div>
+                            <div class="demo-creds">•••••••</div>
+                        </div>
+                        <div class="demo-item" onclick="fillCredentials('staff@inventory.com', 'staff123', 'staff')">
+                            <div class="demo-role"><i class="fas fa-user-check"></i> Staff</div>
+                            <div class="demo-creds">staff@inventory.com</div>
+                            <div class="demo-creds">•••••••</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <script>
+        function fillCredentials(email, password, role) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = password;
+            const radios = document.querySelectorAll('input[name="role"]');
+            radios.forEach(radio => {
+                if (radio.value === role) {
+                    radio.checked = true;
+                }
+            });
+            showToast('success', 'Credentials filled! Click Login');
+        }
+        
+        function showToast(type, message) {
+            const toast = document.getElementById('toast');
+            toast.className = 'toast ' + type;
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const selectedRole = document.querySelector('input[name="role"]:checked').value;
+            
+            if (!email || !password) {
+                showToast('error', 'Please enter email and password');
+                return;
+            }
+            
+            const loginBtn = document.getElementById('loginBtn');
+            const originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = '<span class="spinner"></span> Logging in...';
+            loginBtn.disabled = true;
+            
+            try {
+                const formData = new URLSearchParams();
+                formData.append('email', email);
+                formData.append('password', password);
+                formData.append('role', selectedRole);
+                
+                const response = await fetch('/Account/Login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData.toString()
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('success', result.message);
+                    setTimeout(() => {
+                        window.location.href = result.redirectUrl;
+                    }, 1000);
+                } else {
+                    showToast('error', result.message);
+                    loginBtn.innerHTML = originalText;
+                    loginBtn.disabled = false;
+                }
+            } catch (error) {
+                showToast('error', 'Network error. Please try again.');
+                loginBtn.innerHTML = originalText;
+                loginBtn.disabled = false;
+            }
+        });
+        
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

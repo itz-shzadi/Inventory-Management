@@ -1,0 +1,133 @@
+﻿@model Inventory.Models.Category
+@{
+    ViewData["Title"] = "Categories";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Category Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+
+<body style="background: #faf5ff;">
+
+    <div class="dashboard-container">
+        <!-- Header - SAME AS DASHBOARD with Purple Gradient -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <i class="fas fa-tags"></i>
+                    <h1>Category Management</h1>
+                </div>
+                <div class="header-stats">
+                    <div class="header-stat-card">
+                        <div class="header-stat-label">Total Categories</div>
+                        <div class="header-stat-value" id="totalCategories">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Category & Categories List Grid -->
+        <div class="products-grid">
+            <!-- Left Column: Category Form -->
+            <div class="form-card">
+                <h3><i class="fas fa-folder-plus"></i> <span id="formTitle">Add New Category</span></h3>
+                <form id="categoryForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="categoryId" name="Id" value="0" />
+
+                    <div class="form-group">
+                        <label><i class="fas fa-tag"></i> Category Name <span class="required">*</span></label>
+                        <input type="text" id="categoryName" name="Name" placeholder="e.g., Electronics, Furniture, Clothing" class="form-control" />
+                        <span class="error" id="nameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-align-left"></i> Description</label>
+                        <textarea id="description" name="Description" placeholder="Optional description for this category..." rows="3" class="form-control"></textarea>
+                        <span class="error" id="descError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-toggle-on"></i> Status</label>
+                        <select id="status" name="Status" class="form-control">
+                            <option value="Active" selected>Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                        <span class="error" id="statusError"></span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save"></i> Save Category
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="cancelBtn" style="display:none;">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Column: Categories List -->
+            <div class="table-card">
+                <h3><i class="fas fa-list"></i> Product Categories</h3>
+
+                <!-- Search Section -->
+                <div class="search-section">
+                    <div class="search-bar-wrapper">
+                        <div class="search-input-group">
+                            <input type="text" id="searchInput" placeholder="Search by name or description..." class="search-input" />
+                            <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                            <button class="btn btn-secondary" id="resetSearchBtn"><i class="fas fa-redo"></i> Reset</button>
+                        </div>
+                        <div class="filter-group">
+                            <select id="statusFilter" class="form-control" style="width: auto; min-width: 120px;">
+                                <option value="">All Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                            <button class="btn btn-outline" id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryTableBody">
+                            <tr><td colspan="4" style="text-align:center;">Loading categories......<td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <div class="showing-info">
+                        <i class="fas fa-database"></i> Showing: <span id="displayCount">0</span> categories
+                    </div>
+                    <button id="deleteAllBtn" class="delete-all-btn"><i class="fas fa-trash-alt"></i> Delete All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/assests/ajax/js/category/Category.js"></script>
+</body>
+</html>

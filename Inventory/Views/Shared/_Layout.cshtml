@@ -1,0 +1,629 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - InventoryMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-boxes"></i>
+                <span>InventoryMS</span>
+            </div>
+            <div class="version">@ViewBag.UserRole Portal v2.0</div>
+        </div>
+        
+        <!-- MAIN NAVIGATION -->
+        <div class="nav-section">
+            <div class="nav-title">MAIN NAVIGATION</div>
+            <ul class="nav-menu">
+                <!-- Dashboard - Everyone -->
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")"
+                       asp-controller="Account" asp-action="Dashboard">
+                        <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+                    </a>
+                </li>
+                
+                <!-- User Management - ONLY ADMIN -->
+                @if (ViewBag.CanManageUsers == true)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "User" ? "active" : "")"
+                           asp-controller="User" asp-action="Index">
+                            <i class="fas fa-users"></i><span>User Management</span>
+                        </a>
+                    </li>
+                }
+                
+                <!-- Products - ADMIN and MANAGER only -->
+                @if (ViewBag.CanManageProducts == true)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Product" ? "active" : "")"
+                           asp-controller="Product" asp-action="Index">
+                            <i class="fas fa-box"></i><span>Products</span>
+                        </a>
+                    </li>
+                }
+                
+                <!-- Categories - ADMIN and MANAGER only -->
+                @if (ViewBag.CanManageCategories == true)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Category" ? "active" : "")"
+                           asp-controller="Category" asp-action="Index">
+                            <i class="fas fa-tags"></i><span>Categories</span>
+                        </a>
+                    </li>
+                }
+                
+                <!-- Suppliers - ADMIN and MANAGER only -->
+                @if (ViewBag.CanManageSuppliers == true)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Supplier" ? "active" : "")"
+                           asp-controller="Supplier" asp-action="Index">
+                            <i class="fas fa-truck"></i><span>Suppliers</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+        
+        <div class="nav-divider"></div>
+        
+        <!-- STOCK MANAGEMENT - EVERYONE -->
+        <div class="nav-section">
+            <div class="nav-title">STOCK MANAGEMENT</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "StockIn" ? "active" : "")"
+                       asp-controller="Stock" asp-action="StockIn">
+                        <i class="fas fa-arrow-down"></i><span>Stock In</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "StockOut" ? "active" : "")"
+                       asp-controller="Stock" asp-action="StockOut">
+                        <i class="fas fa-arrow-up"></i><span>Stock Out</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "CurrentStock" ? "active" : "")"
+                       asp-controller="Stock" asp-action="CurrentStock">
+                        <i class="fas fa-boxes"></i><span>Current Stock</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "LowStockReport" ? "active" : "")"
+                       asp-controller="Stock" asp-action="LowStockReport">
+                        <i class="fas fa-exclamation-triangle"></i><span>Low Stock Report</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="nav-divider"></div>
+        
+        <!-- ANALYTICS - Everyone can view reports -->
+        <div class="nav-section">
+            <div class="nav-title">ANALYTICS</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Reports" ? "active" : "")"
+                       asp-controller="Stock" asp-action="Reports">
+                        <i class="fas fa-chart-line"></i><span>Reports</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="btn-logout-sidebar" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-navbar">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="page-title">
+                <i class="fas fa-chart-line"></i> @ViewData["Title"]
+            </div>
+            <div class="user-menu">
+                <!-- Notification Bell -->
+                <div class="notification-container">
+                    <div class="notification-bell" onclick="toggleNotificationDropdown()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                    </div>
+                    <div class="notification-dropdown" id="notificationDropdown" style="display: none;">
+                        <div class="notification-header">
+                            <h3><i class="fas fa-bell"></i> Notifications</h3>
+                            <button onclick="markAllNotificationsRead()" class="mark-all-read">Mark all read</button>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <div class="notification-loading">Loading notifications...</div>
+                        </div>
+                        <div class="notification-footer">
+                            <a href="#" onclick="viewAllNotifications()">View all notifications</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <span class="user-name">
+                    <i class="fas @(ViewBag.UserRole == "Admin" ? "fa-shield-alt" : ViewBag.UserRole == "Manager" ? "fa-user-tie" : "fa-user")"></i>
+                    @ViewBag.UserName
+                </span>
+                <div class="user-avatar" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-wrapper">
+            @RenderBody()
+        </div>
+        
+        <div class="footer">
+            © 2026 - Inventory Management System | Logged in as: <strong>@ViewBag.UserRole</strong> |
+            @if (ViewBag.UserRole == "Admin")
+            {
+                <span class="full-access"><i class="fas fa-crown"></i> Full Access</span>
+            }
+            else if (ViewBag.UserRole == "Manager")
+            {
+                <span class="limited-access"><i class="fas fa-chart-line"></i> Limited Access (No User Management)</span>
+            }
+            else
+            {
+                <span class="stock-access"><i class="fas fa-user-check"></i> Stock Only Access</span>
+            }
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <form id="antiForgeryForm" style="display:none;">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <style>
+        .notification-container {
+            position: relative;
+            margin-right: 15px;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            font-size: 20px;
+            color: #4c1d95;
+            transition: all 0.3s;
+        }
+
+        .notification-bell:hover {
+            transform: scale(1.1);
+            color: #8b5cf6;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            right: 0;
+            top: 35px;
+            width: 380px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-height: 500px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .notification-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .notification-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .mark-all-read {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            gap: 12px;
+        }
+
+        .notification-item:hover {
+            background: #faf5ff;
+        }
+
+        .notification-item.unread {
+            background: #fef3c7;
+        }
+
+        .notification-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.success {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        .notification-icon.warning {
+            background: #fed7aa;
+            color: #f59e0b;
+        }
+
+        .notification-icon.danger {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .notification-icon.info {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .notification-message {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .notification-time {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .notification-footer {
+            padding: 10px 15px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .notification-footer a {
+            font-size: 12px;
+            color: #8b5cf6;
+            text-decoration: none;
+        }
+
+        .notification-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .notification-loading {
+            padding: 40px 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            background: inherit;
+        }
+
+        .btn-logout-sidebar {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            transition: all 0.3s;
+        }
+
+        .btn-logout-sidebar:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .btn-logout-sidebar i {
+            margin-right: 10px;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Toast notification
+        function showToast(message, type) {
+            var toast = $('#toast');
+            toast.removeClass('success error warning info').addClass(type || 'success');
+            toast.html(message);
+            toast.fadeIn(300);
+            setTimeout(function() { toast.fadeOut(300); }, 3000);
+        }
+        
+        // Logout function
+        function logout() {
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            if (!token) token = $('#antiForgeryForm input[name="__RequestVerificationToken"]').val();
+            
+            var formData = new URLSearchParams();
+            if (token) formData.append('__RequestVerificationToken', token);
+            
+            $.ajax({
+                url: '/Account/Logout',
+                method: 'POST',
+                data: formData.toString(),
+                contentType: 'application/x-www-form-urlencoded',
+                success: function(response) {
+                    window.location.href = '/Account/Login';
+                },
+                error: function() {
+                    window.location.href = '/Account/Login';
+                }
+            });
+        }
+        
+        // ============ NOTIFICATION FUNCTIONS ============
+        
+        let notificationInterval;
+        
+        function loadNotifications() {
+            console.log("Loading notifications...");
+            $.ajax({
+                url: '/Notification/GetNotifications',
+                type: 'GET',
+                success: function(response) {
+                    console.log("Notifications response:", response);
+                    if (response.success) {
+                        updateNotificationUI(response.notifications, response.unreadCount);
+                    } else {
+                        console.error("Error loading notifications:", response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX error:", error);
+                }
+            });
+        }
+        
+        function updateNotificationUI(notifications, unreadCount) {
+            console.log("Updating UI - Notifications:", notifications?.length, "Unread:", unreadCount);
+            
+            // Update badge
+            const badge = $('#notificationBadge');
+            if (unreadCount > 0) {
+                badge.text(unreadCount > 99 ? '99+' : unreadCount);
+                badge.show();
+                if (window.lastUnreadCount !== undefined && unreadCount > window.lastUnreadCount) {
+                    // Play sound for new notifications
+                    try {
+                        // Optional: play sound
+                    } catch(e) {}
+                }
+                window.lastUnreadCount = unreadCount;
+            } else {
+                badge.hide();
+                window.lastUnreadCount = 0;
+            }
+            
+            // Update dropdown list
+            const list = $('#notificationList');
+            if (!notifications || notifications.length === 0) {
+                list.html('<div class="notification-empty"><i class="fas fa-bell-slash"></i><br/>No notifications</div>');
+                return;
+            }
+            
+            let html = '';
+            notifications.forEach(notification => {
+                const unreadClass = !notification.isRead ? 'unread' : '';
+                const severityClass = getSeverityClass(notification.severity);
+                const icon = notification.icon || getDefaultIcon(notification.type);
+                
+                html += `
+                    <div class="notification-item ${unreadClass}" onclick="handleNotificationClick(${notification.id}, '${notification.actionUrl || ''}')">
+                        <div class="notification-icon ${severityClass}">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${escapeHtml(notification.title)}</div>
+                            <div class="notification-message">${escapeHtml(notification.message).substring(0, 100)}${escapeHtml(notification.message).length > 100 ? '...' : ''}</div>
+                            <div class="notification-time">${notification.createdAt}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            list.html(html);
+        }
+        
+        function getSeverityClass(severity) {
+            switch(severity?.toLowerCase()) {
+                case 'success': return 'success';
+                case 'warning': return 'warning';
+                case 'danger': return 'danger';
+                default: return 'info';
+            }
+        }
+        
+        function getDefaultIcon(type) {
+            switch(type) {
+                case 'LowStock': return 'fa-exclamation-triangle';
+                case 'OutOfStock': return 'fa-times-circle';
+                case 'StockIn': return 'fa-arrow-down';
+                case 'StockOut': return 'fa-arrow-up';
+                case 'NewProduct': return 'fa-box';
+                case 'UserActivity': return 'fa-user-clock';
+                case 'DailySummary': return 'fa-chart-line';
+                default: return 'fa-bell';
+            }
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            return $('<div>').text(text).html();
+        }
+        
+        function toggleNotificationDropdown() {
+            const dropdown = $('#notificationDropdown');
+            if (dropdown.is(':visible')) {
+                dropdown.hide();
+            } else {
+                loadNotifications();
+                dropdown.show();
+            }
+        }
+        
+        function handleNotificationClick(id, actionUrl) {
+            markNotificationRead(id);
+            if (actionUrl && actionUrl !== '#') {
+                window.location.href = actionUrl;
+            } else {
+                $('#notificationDropdown').hide();
+            }
+        }
+        
+        function markNotificationRead(id) {
+            $.ajax({
+                url: '/Notification/MarkAsRead',
+                type: 'POST',
+                data: { id: id },
+                success: function() {
+                    loadNotifications();
+                },
+                error: function() {
+                    loadNotifications();
+                }
+            });
+        }
+        
+        function markAllNotificationsRead() {
+            $.ajax({
+                url: '/Notification/MarkAllAsRead',
+                type: 'POST',
+                success: function() {
+                    loadNotifications();
+                },
+                error: function() {
+                    loadNotifications();
+                }
+            });
+        }
+        
+        function viewAllNotifications() {
+            window.location.href = '/Notification/Index';
+        }
+        
+        // Document ready
+        $(document).ready(function() {
+            console.log("Document ready - Initializing...");
+            
+            // Mobile sidebar toggle
+            $('#menuToggle').on('click', function() {
+                $('#sidebar').toggleClass('open');
+            });
+            
+            // Close sidebar when clicking outside on mobile
+            $(document).on('click', function(e) {
+                if ($(window).width() <= 768) {
+                    if (!$(e.target).closest('#sidebar').length && !$(e.target).closest('#menuToggle').length) {
+                        $('#sidebar').removeClass('open');
+                    }
+                }
+            });
+            
+            // Load notifications after page loads
+            setTimeout(loadNotifications, 1000);
+            
+            // Load notifications every 30 seconds
+            notificationInterval = setInterval(loadNotifications, 30000);
+            
+            // Close dropdown when clicking outside
+            $(document).click(function(e) {
+                if (!$(e.target).closest('.notification-container').length) {
+                    $('#notificationDropdown').hide();
+                }
+            });
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
