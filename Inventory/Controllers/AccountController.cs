@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using System;
 
 namespace InventoryMS.Controllers
 {
@@ -19,18 +20,18 @@ namespace InventoryMS.Controllers
             {
                 if (email == "admin@inventory.com" && password == "admin123" && role == "admin")
                 {
-                    SetSession("Admin", "John Admin", email);
-                    return Json(new { success = true, redirectUrl = "/Account/AdminDashboard" });
+                    SetSession(1, "Admin", "John Admin", email);  // UserId = 1
+                    return Json(new { success = true, redirectUrl = "/Account/Dashboard" });
                 }
                 else if (email == "manager@inventory.com" && password == "manager123" && role == "manager")
                 {
-                    SetSession("Manager", "Sarah Manager", email);
-                    return Json(new { success = true, redirectUrl = "/Account/ManagerDashboard" });
+                    SetSession(2, "Manager", "Sarah Manager", email);  // UserId = 2
+                    return Json(new { success = true, redirectUrl = "/Account/Dashboard" });
                 }
                 else if (email == "staff@inventory.com" && password == "staff123" && role == "staff")
                 {
-                    SetSession("Staff", "Mike Staff", email);
-                    return Json(new { success = true, redirectUrl = "/Account/StaffDashboard" });
+                    SetSession(3, "Staff", "Mike Staff", email);  // UserId = 3
+                    return Json(new { success = true, redirectUrl = "/Account/Dashboard" });
                 }
 
                 return Json(new { success = false, message = "Invalid credentials!" });
@@ -41,8 +42,10 @@ namespace InventoryMS.Controllers
             }
         }
 
-        private void SetSession(string role, string name, string email)
+        // UPDATED: SetSession with UserId parameter
+        private void SetSession(int userId, string role, string name, string email)
         {
+            HttpContext.Session.SetInt32("UserId", userId);  // ✅ IMPORTANT: Set UserId
             HttpContext.Session.SetString("UserRole", role);
             HttpContext.Session.SetString("UserName", name);
             HttpContext.Session.SetString("UserEmail", email);
@@ -61,85 +64,119 @@ namespace InventoryMS.Controllers
             return View();
         }
 
-        // ========== DASHBOARDS WITH PERMISSIONS ==========
+        // ========== SINGLE DASHBOARD FOR ALL ROLES ==========
 
-        public IActionResult StaffDashboard()
+        public IActionResult Dashboard()
         {
             // Check login
             if (HttpContext.Session.GetString("IsLoggedIn") != "true")
                 return RedirectToAction("Login");
 
-            if (HttpContext.Session.GetString("UserRole") != "Staff")
+            string userRole = HttpContext.Session.GetString("UserRole");
+
+            // Agar role null ya invalid hai to login par bhejo
+            if (string.IsNullOrEmpty(userRole))
                 return RedirectToAction("Login");
 
-            // SET ALL ViewBag VALUES HERE
+            // Set common ViewBag values
             ViewBag.UserName = HttpContext.Session.GetString("UserName");
-            ViewBag.UserRole = "Staff";  // IMPORTANT: This must be "Staff"
-            ViewData["Title"] = "Staff Dashboard";
+            ViewBag.UserRole = userRole;
+            ViewData["Title"] = $"{userRole} Dashboard";
 
-            // PERMISSIONS - Staff ke liye ALL false except stock
-            ViewBag.CanManageUsers = false;
-            ViewBag.CanManageCategories = false;
-            ViewBag.CanManageSuppliers = false;
-            ViewBag.CanManageProducts = false;
-            ViewBag.CanManageStock = true;
-            ViewBag.CanViewReports = true;
-            ViewBag.DashboardAction = "StaffDashboard";
+            // Set permissions based on role
+            switch (userRole)
+            {
+                case "Admin":
+                    ViewBag.CanManageUsers = true;
+                    ViewBag.CanManageCategories = true;
+                    ViewBag.CanManageSuppliers = true;
+                    ViewBag.CanManageProducts = true;
+                    ViewBag.CanManageStock = true;
+                    ViewBag.CanViewReports = true;
+                    break;
 
-            return View();
+                case "Manager":
+                    ViewBag.CanManageUsers = false;
+                    ViewBag.CanManageCategories = true;
+                    ViewBag.CanManageSuppliers = true;
+                    ViewBag.CanManageProducts = true;
+                    ViewBag.CanManageStock = true;
+                    ViewBag.CanViewReports = true;
+                    break;
+
+                case "Staff":
+                    ViewBag.CanManageUsers = false;
+                    ViewBag.CanManageCategories = false;
+                    ViewBag.CanManageSuppliers = false;
+                    ViewBag.CanManageProducts = false;
+                    ViewBag.CanManageStock = true;
+                    ViewBag.CanViewReports = true;
+                    break;
+
+                default:
+                    return RedirectToAction("Login");
+            }
+
+            ViewBag.DashboardAction = "Dashboard";
+
+            return View("Dashboard");
         }
 
-        public IActionResult ManagerDashboard()
+        // ========== GET CURRENT USER ==========
+
+        [HttpGet]
+        public IActionResult GetCurrentUser()
         {
-            // Check login
-            if (HttpContext.Session.GetString("IsLoggedIn") != "true")
-                return RedirectToAction("Login");
+            try
+            {
+                var userId = HttpContext.Session.GetInt32("UserId");
+                var userName = HttpContext.Session.GetString("UserName");
+                var userRole = HttpContext.Session.GetString("UserRole");
+                var userEmail = HttpContext.Session.GetString("UserEmail");
 
-            if (HttpContext.Session.GetString("UserRole") != "Manager")
-                return RedirectToAction("Login");
+                if (!userId.HasValue || HttpContext.Session.GetString("IsLoggedIn") != "true")
+                {
+                    return Unauthorized(new { success = false, message = "Not logged in" });
+                }
 
-            // SET ALL ViewBag VALUES HERE
-            ViewBag.UserName = HttpContext.Session.GetString("UserName");
-            ViewBag.UserRole = "Manager";  // IMPORTANT: This must be "Manager"
-            ViewData["Title"] = "Manager Dashboard";
-
-            // PERMISSIONS - Manager ke liye
-            ViewBag.CanManageUsers = false;
-            ViewBag.CanManageCategories = true;
-            ViewBag.CanManageSuppliers = true;
-            ViewBag.CanManageProducts = true;
-            ViewBag.CanManageStock = true;
-            ViewBag.CanViewReports = true;
-            ViewBag.DashboardAction = "ManagerDashboard";
-
-            return View();
+                return Ok(new
+                {
+                    success = true,
+                    userId = userId.Value,
+                    userName = userName ?? "Unknown",
+                    userRole = userRole ?? "Unknown",
+                    userEmail = userEmail ?? "",
+                    isLoggedIn = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, error = ex.Message });
+            }
         }
 
-        public IActionResult AdminDashboard()
+        // ========== TEST SESSION ENDPOINT ==========
+
+        [HttpGet]
+        public IActionResult TestSession()
         {
-            // Check login
-            if (HttpContext.Session.GetString("IsLoggedIn") != "true")
-                return RedirectToAction("Login");
+            var userId = HttpContext.Session.GetInt32("UserId");
+            var userName = HttpContext.Session.GetString("UserName");
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var isLoggedIn = HttpContext.Session.GetString("IsLoggedIn");
 
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-                return RedirectToAction("Login");
-
-            // SET ALL ViewBag VALUES HERE
-            ViewBag.UserName = HttpContext.Session.GetString("UserName");
-            ViewBag.UserRole = "Admin";  // IMPORTANT: This must be "Admin"
-            ViewData["Title"] = "Admin Dashboard";
-
-            // PERMISSIONS - Admin ke liye ALL true
-            ViewBag.CanManageUsers = true;
-            ViewBag.CanManageCategories = true;
-            ViewBag.CanManageSuppliers = true;
-            ViewBag.CanManageProducts = true;
-            ViewBag.CanManageStock = true;
-            ViewBag.CanViewReports = true;
-            ViewBag.DashboardAction = "AdminDashboard";
-
-            return View();
+            return Json(new
+            {
+                userId = userId,
+                userName = userName,
+                userRole = userRole,
+                isLoggedIn = isLoggedIn,
+                sessionId = HttpContext.Session.Id
+            });
         }
+
+        // ========== HELPER METHODS ==========
+
         private void SetDashboardViewBag(string role, string title, string icon)
         {
             ViewBag.UserRole = role;
@@ -148,8 +185,8 @@ namespace InventoryMS.Controllers
             ViewBag.PageIcon = icon;
         }
 
-        private void SetPermissions(bool canManageUsers, bool canManageCategories, 
-                                     bool canManageSuppliers, bool canManageProducts, 
+        private void SetPermissions(bool canManageUsers, bool canManageCategories,
+                                     bool canManageSuppliers, bool canManageProducts,
                                      bool canManageStock, bool canViewReports)
         {
             ViewBag.CanManageUsers = canManageUsers;
@@ -179,31 +216,5 @@ namespace InventoryMS.Controllers
         {
             return HttpContext.Session.GetString("UserRole") == "Staff";
         }
-
-        // ========== SIMPLIFIED DASHBOARD VIEWS ==========
-        
-        public IActionResult AdminDashboardSimple()
-        {
-            if (!IsLoggedIn() || !IsAdmin())
-                return RedirectToAction("Login");
-            
-            SetDashboardViewBag("Admin", "Admin Dashboard", "fa-shield-alt");
-            SetPermissions(true, true, true, true, true, true);
-            ViewBag.DashboardAction = "AdminDashboardSimple";
-            return View("AdminDashboard");
-        }
-
-        public IActionResult ManagerDashboardSimple()
-        {
-            if (!IsLoggedIn() || !IsManager())
-                return RedirectToAction("Login");
-            
-            SetDashboardViewBag("Manager", "Manager Dashboard", "fa-user-tie");
-            SetPermissions(false, true, true, true, true, true);
-            ViewBag.DashboardAction = "ManagerDashboardSimple";
-            return View("ManagerDashboard");
-        }
-
-       
     }
 }

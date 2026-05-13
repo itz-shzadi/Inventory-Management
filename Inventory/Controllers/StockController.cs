@@ -2,7 +2,6 @@
 using Inventory.DTOs;
 using Inventory.Models;
 using Inventory.Services; // Add this for notification service
-using InventoryMS.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -829,6 +828,42 @@ namespace Inventory.Controllers
             }
 
             await Task.CompletedTask;
+        }
+        [HttpGet]
+        public IActionResult TestAllNotifications()
+        {
+            var userName = HttpContext.Session.GetString("UserName") ?? "System";
+            var userRole = HttpContext.Session.GetString("UserRole") ?? "Admin";
+
+            Console.WriteLine($"Testing notifications for: {userName} ({userRole})");
+
+            // 1. Low Stock Notification
+            _notificationService.LowStockAlert("Iron", 1, 5, 10);
+
+            // 2. Out of Stock Notification  
+            _notificationService.OutOfStockAlert("Iron", 1);
+
+            // 3. Stock In Notification
+            _notificationService.StockInNotification("Iron", 1, 50, userName);
+
+            // 4. Stock Out Notification
+            _notificationService.StockOutNotification("Iron", 1, 10, userName, "Sale");
+
+            // 5. Invalid Stock Alert
+            _notificationService.InvalidStockAlert("Iron", 1, 20, 5, userName);
+
+            // 6. New Product Notification
+            _notificationService.NewProductNotification("Test Product", 99, userName);
+
+            // 7. User Activity Notification
+            _notificationService.UserActivityNotification("Test Action", userName, "Testing all notification types");
+
+            return Ok(new
+            {
+                success = true,
+                message = "7 notifications sent successfully! Check the bell icon 🔔",
+                notificationsCount = 7
+            });
         }
     }
 }

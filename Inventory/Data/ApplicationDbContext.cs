@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Inventory.Models;
+﻿using Inventory.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.Data
 {
@@ -16,7 +16,8 @@ namespace Inventory.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<StockIn> StockIns { get; set; }
         public DbSet<StockOut> StockOuts { get; set; }
-
+        // Add to your ApplicationDbContext class
+        public DbSet<Notification> Notifications { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

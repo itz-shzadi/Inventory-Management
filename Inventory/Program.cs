@@ -3,7 +3,6 @@ using Inventory.Data.IServices;
 using Inventory.Data.Services;
 using Inventory.Helper;
 using Inventory.Services;
-using InventoryMS.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,7 +31,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 // Register the renamed notification service
-builder.Services.AddSingleton<IAppNotificationService, AppNotificationService>();
+builder.Services.AddScoped<IAppNotificationService, AppNotificationService>();
 // Add DbContext with SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

@@ -1,10 +1,11 @@
-﻿// StockOut.js - FULLY FIXED VERSION
+﻿// StockOut.js - FIXED VERSION
 
 $(document).ready(function () {
     console.log("StockOut.js loaded");
 
     loadProducts();
     loadStockOutHistory();
+    loadTodayStats(); // Added to load header stats
 
     $('#productId').on('change', function () {
         loadCurrentStock();
@@ -90,6 +91,19 @@ function loadCurrentStock() {
     $('#quantity').attr('min', 1);
 }
 
+function loadTodayStats() {
+    $.ajax({
+        url: '/Stock/GetTotalStockOut',
+        type: 'GET',
+        success: function (total) {
+            $('#totalQuantityOut').text(total || 0);
+        },
+        error: function () {
+            $('#totalQuantityOut').text('0');
+        }
+    });
+}
+
 function removeStock() {
     var productId = $('#productId').val();
     var quantity = $('#quantity').val();
@@ -121,25 +135,31 @@ function removeStock() {
         return;
     }
 
-    var postData = {
-        ProductId: parseInt(productId),
-        QuantityRemoved: parseInt(quantity),
-        Reason: reason,
-        Remarks: remarks || ''
-    };
+    // ============ FIX: Use FormData instead of JSON ============
+    var formData = new FormData();
+    formData.append('productId', parseInt(productId));
+    formData.append('quantityRemoved', parseInt(quantity));
+    formData.append('reason', reason);
+    formData.append('remarks', remarks || '');
 
-    console.log("Sending data:", postData);
+    console.log("Sending FormData:", {
+        productId: parseInt(productId),
+        quantityRemoved: parseInt(quantity),
+        reason: reason,
+        remarks: remarks || ''
+    });
 
     var submitBtn = $('#submitBtn');
     var originalHtml = submitBtn.html();
     submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-pulse"></i> Processing...');
 
-    // TRY THIS ENDPOINT FIRST - Match your controller
+    // ============ FIX: Send as FormData (matches backend expectations) ============
     $.ajax({
         url: '/Stock/RemoveStock',
         type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(postData),
+        data: formData,
+        processData: false,  // Important for FormData
+        contentType: false,   // Important for FormData
         headers: {
             'RequestVerificationToken': getToken()
         },
@@ -147,10 +167,13 @@ function removeStock() {
             console.log("Success Response:", response);
             if (response.success) {
                 showToast(response.message || 'Stock removed successfully!', 'success');
+                // Reset form
                 $('#stockOutForm')[0].reset();
                 $('#currentStock').val('');
+                // Reload data
                 loadStockOutHistory();
                 loadProducts();
+                loadTodayStats();
             } else {
                 showToast(response.message || 'Failed to remove stock', 'error');
             }
@@ -158,47 +181,20 @@ function removeStock() {
         },
         error: function (xhr) {
             console.error("Error Response:", xhr);
-
-            // Try alternative endpoint if first fails
-            $.ajax({
-                url: '/api/Stock/RemoveStock',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(postData),
-                headers: {
-                    'RequestVerificationToken': getToken()
-                },
-                success: function (response) {
-                    console.log("Alternative endpoint success:", response);
-                    if (response.success) {
-                        showToast(response.message || 'Stock removed successfully!', 'success');
-                        $('#stockOutForm')[0].reset();
-                        $('#currentStock').val('');
-                        loadStockOutHistory();
-                        loadProducts();
-                    } else {
-                        showToast(response.message || 'Failed to remove stock', 'error');
-                    }
-                    submitBtn.prop('disabled', false).html(originalHtml);
-                },
-                error: function (xhr2) {
-                    console.error("Both endpoints failed");
-                    var msg = 'Error removing stock. Please check console.';
-                    try {
-                        var response = JSON.parse(xhr.responseText);
-                        msg = response.message || msg;
-                    } catch (e) { }
-                    showToast(msg, 'error');
-                    submitBtn.prop('disabled', false).html(originalHtml);
-                }
-            });
+            var msg = 'Error removing stock.';
+            try {
+                var response = JSON.parse(xhr.responseText);
+                msg = response.message || msg;
+            } catch (e) { }
+            showToast(msg, 'error');
+            submitBtn.prop('disabled', false).html(originalHtml);
         }
     });
 }
 
 function loadStockOutHistory() {
     console.log("Loading stock out history...");
-    $('#stockOutTableBody').html('<tr><td colspan="5" style="text-align:center;">Loading...<\/td><\/tr>');
+    $('#stockOutTableBody').html('<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>');
 
     $.ajax({
         url: '/Stock/GetStockOutHistory',
@@ -206,67 +202,55 @@ function loadStockOutHistory() {
         success: function (data) {
             console.log("History loaded:", data);
             displayStockOutHistory(data);
-            updateTotals(data);
         },
         error: function (xhr) {
             console.error("Error loading history:", xhr);
-            $('#stockOutTableBody').html('<tr><td colspan="5" style="text-align:center;color:red;">Error loading history<\/td><\/tr>');
+            $('#stockOutTableBody').html('<tr><td colspan="5" style="text-align:center;color:red;">Error loading history</td></tr>');
             showToast('Error loading stock out history', 'error');
         }
     });
 }
 
-function updateTotals(data) {
+function displayStockOutHistory(data) {
+    // Calculate totals for header
     var totalQty = 0;
     var todayTotal = 0;
     var today = new Date().toISOString().split('T')[0];
 
-    if (data && data.length) {
-        for (var i = 0; i < data.length; i++) {
-            var item = data[i];
-            var qty = item.quantityRemoved || 0;
-            totalQty += qty;
-
-            if (item.date) {
-                var itemDate = new Date(item.date).toISOString().split('T')[0];
-                if (itemDate === today) {
-                    todayTotal += qty;
-                }
-            }
-        }
-    }
-
-    $('#todayStockOut').text(todayTotal);
-    if ($('#totalQuantityOut').length) {
-        $('#totalQuantityOut').text(totalQty);
-    }
-
-    console.log("Totals - Total Qty:", totalQty, "Today:", todayTotal);
-}
-
-function displayStockOutHistory(data) {
     if (!data || data.length === 0) {
-        $('#stockOutTableBody').html('<tr><td colspan="5" style="text-align:center;">No records found<\/td><\/tr>');
+        $('#stockOutTableBody').html('<tr><td colspan="5" style="text-align:center;">No records found</td></tr>');
         $('#showingCount').text('0');
+        $('#todayStockOut').text('0');
+        $('#totalQuantityOut').text('0');
         return;
     }
 
     var html = '';
     for (var i = 0; i < data.length; i++) {
         var item = data[i];
+        var qty = item.quantityRemoved || 0;
+        totalQty += qty;
+
+        var itemDate = item.date ? new Date(item.date).toISOString().split('T')[0] : '';
+        if (itemDate === today) {
+            todayTotal += qty;
+        }
+
         var reasonClass = (item.reason === 'Sale') ? 'badge-success' : 'badge-danger';
 
         html += '<tr>';
-        html += '<td>' + (item.date ? new Date(item.date).toLocaleDateString() : '-') + '<\/td>';
-        html += '<td>' + escapeHtml(item.productName || '-') + '<\/td>';
-        html += '<td><strong>' + (item.quantityRemoved || 0) + '<\/strong><\/td>';
-        html += '<td><span class="' + reasonClass + '">' + escapeHtml(item.reason || '-') + '<\/span><\/td>';
-        html += '<td>' + escapeHtml(item.remarks || '-') + '<\/td>';
-        html += '<\/tr>';
+        html += '<td>' + (item.date ? new Date(item.date).toLocaleDateString() : '-') + '</td>';
+        html += '<td>' + escapeHtml(item.productName || '-') + '</td>';
+        html += '<td><strong>' + qty + '</strong></td>';
+        html += '<td><span class="' + reasonClass + '">' + escapeHtml(item.reason || '-') + '</span></td>';
+        html += '<td>' + escapeHtml(item.remarks || '-') + '</td>';
+        html += '</tr>';
     }
 
     $('#stockOutTableBody').html(html);
     $('#showingCount').text(data.length);
+    $('#todayStockOut').text(todayTotal);
+    $('#totalQuantityOut').text(totalQty);
 }
 
 function searchStockOut() {
@@ -277,7 +261,7 @@ function searchStockOut() {
         return;
     }
 
-    $('#stockOutTableBody').html('<tr><td colspan="5" style="text-align:center;">Searching...<\/td><\/tr>');
+    $('#stockOutTableBody').html('<tr><td colspan="5" style="text-align:center;">Searching...</td></tr>');
 
     $.ajax({
         url: '/Stock/GetStockOutHistory',
@@ -288,7 +272,6 @@ function searchStockOut() {
                     (item.reason && item.reason.toLowerCase().includes(searchTerm.toLowerCase()));
             });
             displayStockOutHistory(filtered);
-            updateTotals(filtered);
         },
         error: function () {
             showToast('Error searching', 'error');
